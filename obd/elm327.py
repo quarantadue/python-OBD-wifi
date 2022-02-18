@@ -120,12 +120,18 @@ class ELM327:
         # ------------- open port -------------
         try:
             self.__port = socket.socket()
+            self.__port.settimeout(self.timeout)
             self.__port.connect((addr, port))
-        except serial.SerialException as e:
+        #except serial.SerialException as e:
+        #    self.__error(e)
+        #    return
+        except TimeoutError as e:
             self.__error(e)
+            self.__port=None
             return
         except OSError as e:
             self.__error(e)
+            # ? self.__port=None
             return
 
         # If we start with the IC in the low power state we need to wake it up
@@ -138,9 +144,13 @@ class ELM327:
         try:
             self.__send(b"ATZ", delay=1)  # wait 1 second for ELM to initialize
             # return data can be junk, so don't bother checking
-        except serial.SerialException as e:
+        #except serial.SerialException as e:
+        #    self.__error(e)
+        #    return
+        except TimeoutError as e:
             self.__error(e)
             return
+
 
         # -------------------------- ATE0 (echo OFF) --------------------------
         r = self.__send(b"ATE0")
@@ -379,8 +389,10 @@ class ELM327:
         if self.__port is not None:
             logger.info("closing port")
             self.__write(b"ATZ")
-            self.__port.close()
-            self.__port = None
+            # in case of errors __write will set self.__port to None
+            if self.__port is not None:
+                self.__port.close()
+                self.__port = None
 
     def send_and_parse(self, cmd):
         """
