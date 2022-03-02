@@ -118,8 +118,11 @@ class ELM327:
         self.timeout = timeout
 
         # ------------- open port -------------
-        try:
-            self.__port = socket.socket()
+        if addr.count(':')==5:
+            self.__port = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
+        else:
+            self.__port = socket.socket()    
+        try:   
             self.__port.settimeout(self.timeout)
             self.__port.connect((addr, port))
         #except serial.SerialException as e:
