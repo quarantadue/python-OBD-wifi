@@ -1,6 +1,6 @@
 [project]
 name = "obd"
-version = "0.7.2"
+version = "0.7.3"
 authors = [
   { name="Brendan Whitfield", email="me@brendan-w.com" },
   { name="Alistair Francis", email="alistair@alistair23.me" },
